@@ -36,6 +36,7 @@ class ZScraper():
 
     # allows us to pull data out of HTML
     def parse(self, response):
+        self.results.clear()
         content = BeautifulSoup(response)
         deck = content.find('ul', {'class': "List-c11n-8-73-8__sc-1smrmqp-0 srp__sc-1psn8tk-0 bfcHMx photo-cards with_constellation"})
         for card in deck.contents:
@@ -49,13 +50,13 @@ class ZScraper():
                 self.results.append({
                     'address': script_json['name'],
                     # 'bedrooms': card.find('span', {'class': 'StyledPropertyCardHomeDetails-c11n-8-73-8__sc-1mlc4v9-0 jlVIIO'}).text,
-                    'floorSize': script_json['floorSize']['value'],
+                    'square footage': script_json['floorSize']['value'],
                     'price': card.find('div', {'class': 'StyledPropertyCardDataArea-c11n-8-73-8__sc-yipmu-0 hRqIYX'}).text,
                     'url': script_json['url']
 
                 })
 
-        print(self.results)
+        # print(self.results)
 
     # def to_csv(self):
     #     with open('zillow.csv', 'w') as csv_file:
@@ -65,19 +66,19 @@ class ZScraper():
     #         for row in self.results:
     #             writer.writerow(row)
 
-    def run(self):
+    def run(self, val):
         url = "https://www.zillow.com/homes/for_rent/"
-        zip_code = str(23693)
-        params = {
-            'searchQueryState': '{"pagination":{},"mapBounds":{"north":37.168389,"east":-76.394529,"south":37.091954,"west":-76.506101},"isMapVisible":false,"filterState":{"fore":{"value":false},"mf":{"value":false},"auc":{"value":false},"nc":{"value":false},"fr":{"value":true},"land":{"value":false},"manu":{"value":false},"fsbo":{"value":false},"cmsn":{"value":false},"fsba":{"value":false}},"isListVisible":true,"regionSelection":[{"regionId":67796,"regionType":7}]}'
-        }
+        zip_code = val
+        # params = {
+        #     'searchQueryState': '{"pagination":{},"mapBounds":{"north":37.168389,"east":-76.394529,"south":37.091954,"west":-76.506101},"isMapVisible":false,"filterState":{"fore":{"value":false},"mf":{"value":false},"auc":{"value":false},"nc":{"value":false},"fr":{"value":true},"land":{"value":false},"manu":{"value":false},"fsbo":{"value":false},"cmsn":{"value":false},"fsba":{"value":false}},"isListVisible":true,"regionSelection":[{"regionId":67796,"regionType":7}]}'
+        # }
 
         res = self.fetch(url+zip_code) # no params needed
         self.parse(res.text)
         # self.to_csv()
         df = pandas.DataFrame(self.results)
-        # print(df)
-        df.to_csv("results.csv")
+        # df.to_csv("results.csv")
+        return df
         # time.sleep(2)
 
 
