@@ -5,7 +5,7 @@ import z_scraper
 import webbrowser
 import pandas as pd
 import os
-from openpyxl import Workbook
+from ttkwidgets import tooltips
 
 favorites = []
 
