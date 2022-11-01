@@ -4,8 +4,12 @@ from tkinter import ttk
 import z_scraper
 import webbrowser
 import pandas as pd
+import os
+from openpyxl import Workbook
 
 favorites = []
+
+exists = os.path.isfile('rentals.xlsx')
 
 root = tkinter.Tk()
 root.title("Padmapper")
@@ -15,7 +19,7 @@ root.resizable(0, 0)
 # define fonts and colors
 search_color = "#f58509"
 favorites_color = "#e90c57"
-delete_color ="#d92222"
+delete_color = "#d92222"
 input_color = "#"
 large_font = ("SimSun", 14)
 small_font = ("SimSun", 10)
@@ -29,8 +33,18 @@ def search():
     load_data(data)
 
 
+def reload_favorites():
+    if exists:
+        fvl = pd.read_excel('rentals.xlsx', header=None)
+        data_rows = fvl.to_numpy().tolist()
+        for row in data_rows:
+            favorites.append(row)
+
+
 def save_favorites():
     favorites.append(tv1.set(tv1.focus()))
+    fv = pd.DataFrame(favorites)
+    fv.to_excel('rentals.xlsx', index=False, header=False)
     popup_msg("The listing was saved")
 
 
@@ -55,13 +69,13 @@ def favorites_list():
     fv1 = ttk.Treeview(my_favorites_frame)
     fv1.place(relheight=1, relwidth=1)
 
-    favesscrolly = tkinter.Scrollbar(my_favorites_frame, orient="vertical", command=fv1.yview)
-    favesscrollx = tkinter.Scrollbar(my_favorites_frame, orient="horizontal", command=fv1.xview)
-    fv1.configure(xscrollcommand=favesscrollx.set, yscrollcommand=favesscrolly.set)
-    favesscrollx.pack(side="bottom", fill="x")
-    favesscrolly.pack(side="right", fill="y")
+    faves_scroll_y = tkinter.Scrollbar(my_favorites_frame, orient="vertical", command=fv1.yview)
+    faves_scroll_x = tkinter.Scrollbar(my_favorites_frame, orient="horizontal", command=fv1.xview)
+    fv1.configure(xscrollcommand=faves_scroll_x.set, yscrollcommand=faves_scroll_y.set)
+    faves_scroll_x.pack(side="bottom", fill="x")
+    faves_scroll_y.pack(side="right", fill="y")
 
-    # load favorites
+    # load favorites column headings
     df = pd.DataFrame(favorites)
     fv1["column"] = tv1["columns"]
     fv1["show"] = "headings"
@@ -127,7 +141,7 @@ def favOnDoubleClick(event):
     link.bind("<Button-1>", lambda e: callback(cur_item['values'][3]))
 
     delete_favorite_button = tkinter.Button(listing_window_frame, text="Delete", font=small_font, bg=delete_color,
-                                              fg="white", command=delete_favorite)
+                                            fg="white", command=delete_favorite)
     delete_favorite_button.pack(side=TOP, padx=5, pady=10, anchor='e')
 
 
@@ -146,6 +160,7 @@ def load_data(data):
     tv1["column"] = list(data.columns)
     tv1["show"] = "headings"
 
+    # assign headings as column names
     for column in tv1["columns"]:
         tv1.heading(column, text=column)
 
@@ -153,7 +168,7 @@ def load_data(data):
     for row in data_rows:
         tv1.insert("", "end", values=row)
 
-    # event binding added
+    # double-click event binding added
     tv1.bind("<Double-1>", onDoubleClick)
 
 
@@ -189,22 +204,8 @@ tv1.configure(xscrollcommand=treescrollx.set, yscrollcommand=treescrolly.set)
 treescrollx.pack(side="bottom", fill="x")
 treescrolly.pack(side="right", fill="y")
 
-# Faves Treeview
-favorites_window = Toplevel(root, bg="white")
-favorites_window.title("My favorites")
-favorites_window.geometry("600x400")
-my_favorites_frame = tkinter.LabelFrame(favorites_window, width=1200, height=225, bg="white")
-my_favorites_frame.pack(pady=30)
-my_favorites_frame.pack_propagate(0)
-
-fv1 = ttk.Treeview(my_favorites_frame)
-fv1.place(relheight=1, relwidth=1)
-
-favesscrolly = tkinter.Scrollbar(my_favorites_frame, orient="vertical", command=fv1.yview)
-favesscrollx = tkinter.Scrollbar(my_favorites_frame, orient="horizontal", command=fv1.xview)
-fv1.configure(xscrollcommand=favesscrollx.set, yscrollcommand=favesscrolly.set)
-favesscrollx.pack(side="bottom", fill="x")
-favesscrolly.pack(side="right", fill="y")
+# reload favorites when program opens
+reload_favorites()
 
 # input frame layout
 search_entry = tkinter.Entry(input_frame, width=20, font=small_font)

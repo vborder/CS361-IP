@@ -1,9 +1,11 @@
-import requests
 from bs4 import BeautifulSoup  # use this to parse data out of HTML
 import json
 import time
 import csv
 import pandas
+import requests
+import subprocess
+import sys
 
 
 class ZScraper():
@@ -65,6 +67,17 @@ class ZScraper():
     #
     #         for row in self.results:
     #             writer.writerow(row)
+
+    # def install_bs4(self):
+    #     subprocess.check_call([sys.executable, "-m", "pip", "install", "bs4"])
+    #
+    #     try:
+    #         from bs4 import BeautifulSoup
+    #     except:
+    #         self.install_bs4()
+    #         from bs4 import BeautifulSoup
+
+
 
     def run(self, val):
         url = "https://www.zillow.com/homes/for_rent/"
