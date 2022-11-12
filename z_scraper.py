@@ -33,7 +33,6 @@ class ZScraper():
 
     def fetch(self, url):
         response = requests.get(url, headers=self.headers)
-        # no params, params=params needed
         return response
 
     # allows us to pull data out of HTML
