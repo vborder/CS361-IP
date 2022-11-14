@@ -85,38 +85,46 @@ def favorites_list():
 def onDoubleClick(event):
     cur_item = tv1.item(tv1.focus())
     item = tv1.identify('item', event.x, event.y)
+
+    # partner microservice
     zip_info = get_zip_info()
 
     # popup window
     listing_window = Toplevel(root, bg="white")
     listing_window.title("Listing detail")
-    listing_window.geometry("600x400")
-    listing_window_frame = tk.Frame(listing_window, bg="white", height=100)
-    listing_window_frame.pack(fill=X, expand=False)
+    listing_window.geometry("450x250")
+    top_frame = tk.Frame(listing_window, bg="white", height=100)
+    top_frame.pack(fill=X, side=TOP, expand=False, anchor=NW)
 
-    # listing_window_bg = tk.Frame(listing_window, bg="white")
-    Label(listing_window_frame, text=cur_item['values'][0], bg="white").pack(pady=10, side=TOP, anchor='w')
-    Label(listing_window_frame, text="square footage: " + cur_item['values'][1], bg="white").pack(pady=2, side=TOP, anchor='w')
-    Label(listing_window_frame, text="price: " + cur_item['values'][2], bg="white").pack(pady=2, side=TOP, anchor='w')
+    Label(top_frame, text=cur_item['values'][0], bg="white", font=(None, 13)).pack(pady=2, side=TOP, anchor='w')
+    Label(top_frame, text="square footage: " + cur_item['values'][1], bg="white").pack(pady=2, side=TOP, anchor='w')
+    Label(top_frame, text="price: " + cur_item['values'][2], bg="white").pack(pady=5, side=TOP, anchor='w')
 
     # url link in window
-    link = Label(listing_window, text=cur_item['values'][3], bg="white", cursor="hand2")
+    link = Label(top_frame, text="Listing link", bg="white", cursor="hand2")
     link.pack(pady=2, side=TOP, anchor='w')
     link.bind("<Button-1>", lambda e: callback(cur_item['values'][3]))
 
-    # microservice data
-    zipc = Label(listing_window_frame, text="", bg="white")
+    # button to save listing to favorites
+    f_frame = tk.Frame(listing_window, bg="white", height=100)
+    f_frame.pack(fill=X, side=TOP, expand=False, anchor=NE)
+    save_to_favorites_button = tk.Button(f_frame, text="Save", font=small_font, bg=favorites_color,
+                                         fg="white", command=save_favorites)
+    save_to_favorites_button.pack(side=TOP, padx=5, pady=5, anchor=NE)
+
+    bottom_frame = tk.Frame(listing_window, bg="#e5e5e5", height=80, borderwidth=1, relief="solid")
+    bottom_frame.pack(fill=X, side=BOTTOM, expand=False)
+
+    # # microservice data
+    Label(bottom_frame, text="Zip code details", bg="#e5e5e5", font=(None, 13)).pack(pady=2, side=TOP, anchor=N)
+    zipc = Label(bottom_frame, text="", bg="#e5e5e5")
     zipc['text'] = '\n'.join('{} {}'.format(k, d) for k, d in zip_info.items())
-    zipc.pack(pady=2, side=BOTTOM, anchor='w')
+    zipc.pack(pady=2, side=BOTTOM, anchor=N)
 
-    # button here to save listing to favorites
-    save_to_favorites_button = tk.Button(listing_window_frame, text="Save", font=small_font, bg=favorites_color,
-                                              fg="white", command=save_favorites)
-    save_to_favorites_button.pack(side=TOP, padx=5, pady=10, anchor='e')
 
-    # Balloons (Tooltips)
-    favoritesToolTips = Pmw.Balloon(listing_window_frame)
-    favoritesToolTips.bind(save_to_favorites_button, "Click to save to your favorites list")
+    # # Balloons (Tooltips)
+    # favoritesToolTips = Pmw.Balloon(listing_window_frame)
+    # favoritesToolTips.bind(save_to_favorites_button, "Click to save to your favorites list")
 
 
 # Partner microservice API
